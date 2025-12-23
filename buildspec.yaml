@@ -4,22 +4,19 @@ phases:
   install:
     commands:
       - echo Installing Docker...
-      - yum install -y docker
-      - service docker start
-      - docker --version
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 &
+      - timeout 20 sh -c "until docker info; do echo waiting for docker; sleep 1; done"
 
   pre_build:
     commands:
       - echo Logging in to Docker Hub
-      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
 
   build:
     commands:
-      - echo Build started on `date`
+      - echo Building Docker image
       - docker build -t brain-task-app .
 
   post_build:
     commands:
-      - docker tag brain-task-app:latest $DOCKER_USERNAME/brain-task-app:latest
-      - docker push $DOCKER_USERNAME/brain-task-app:latest
-      - echo Build completed on `date`
+      - echo Build completed
