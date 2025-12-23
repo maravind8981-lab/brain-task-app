@@ -1,0 +1,25 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Installing Docker...
+      - yum install -y docker
+      - service docker start
+      - docker --version
+
+  pre_build:
+    commands:
+      - echo Logging in to Docker Hub
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - docker build -t brain-task-app .
+
+  post_build:
+    commands:
+      - docker tag brain-task-app:latest $DOCKER_USERNAME/brain-task-app:latest
+      - docker push $DOCKER_USERNAME/brain-task-app:latest
+      - echo Build completed on `date`
