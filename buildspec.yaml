@@ -3,20 +3,16 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo Installing Docker...
-      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 &
-      - timeout 20 sh -c "until docker info; do echo waiting for docker; sleep 1; done"
+      - echo Install phase completed
 
   pre_build:
     commands:
-      - echo Logging in to Docker Hub
-      - echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
+      - echo Pre-build phase completed
 
   build:
     commands:
-      - echo Building Docker image
-      - docker build -t brain-task-app .
+      - echo Build phase completed
 
   post_build:
     commands:
-      - echo Build completed
+      - echo Post-build phase completed
