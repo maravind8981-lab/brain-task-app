@@ -3,16 +3,23 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo Install phase completed
+      - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.29.0/2024-01-04/bin/linux/amd64/kubectl
+      - chmod +x kubectl
+      - mv kubectl /usr/local/bin/
+      - aws eks update-kubeconfig --region ap-south-1 --name brain-task-cluster
 
   pre_build:
     commands:
-      - echo Pre-build phase completed
+      - echo Logging in to Docker Hub
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
   build:
     commands:
-      - echo Build phase completed
+      - docker build -t brain-task-app .
+      - docker tag brain-task-app:latest aravindkumar18/brain-task-app:latest
+      - docker push aravindkumar18/brain-task-app:latest
 
   post_build:
     commands:
-      - echo Post-build phase completed
+      - kubectl apply -f k8s/deployment.yaml
+      - kubectl apply -f k8s/service.yaml
