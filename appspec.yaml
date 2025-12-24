@@ -1,12 +1,9 @@
 version: 0.0
-os: linux
-
-files:
-  - source: /
-    destination: /home/ec2-user/Brain-Tasks-App
-
-hooks:
-  AfterInstall:
-    - location: deploy.sh
-      timeout: 300
-      runas: ec2-user
+Resources:
+  - TargetService:
+      Type: AWS::EKS::Service
+      Properties:
+        TaskDefinition: codedeploy/deployment.yaml
+        LoadBalancerInfo:
+          ContainerName: "brain-task"
+          ContainerPort: 3000
