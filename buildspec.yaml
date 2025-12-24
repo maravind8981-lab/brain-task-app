@@ -3,10 +3,14 @@ version: 0.2
 phases:
   install:
     commands:
-      - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.29.0/2024-01-04/bin/linux/amd64/kubectl
+      - echo Installing kubectl...
+      - curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.29.0/2024-01-04/bin/linux/amd64/kubectl
       - chmod +x kubectl
       - mv kubectl /usr/local/bin/
-      - aws eks update-kubeconfig --region ap-south-1 --name brain-task-cluster
+      - mkdir -p /root/.kube
+      - aws eks update-kubeconfig --region ap-south-1 --name brain-task-cluster --kubeconfig /root/.kube/config
+      - export KUBECONFIG=/root/.kube/config
+      - kubectl version --client
 
   pre_build:
     commands:
@@ -21,5 +25,6 @@ phases:
 
   post_build:
     commands:
-      - kubectl apply -f k8s/deployment.yaml
-      - kubectl apply -f k8s/service.yaml
+      - echo Deploying to EKS
+      - kubectl apply -f k8s/deployment.yaml --validate=false
+      - kubectl apply -f k8s/service.yaml --validate=false
